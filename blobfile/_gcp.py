@@ -33,6 +33,8 @@ from blobfile._common import (
     strip_slashes,
 )
 
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed, wait_random
+
 MAX_EXPIRATION = 7 * 24 * 60 * 60
 OAUTH_TOKEN = "oauth_token"
 ANONYMOUS = "anonymous"
@@ -150,6 +152,13 @@ def _create_access_token_request(creds: Dict[str, Any], scopes: List[str]) -> Re
 # Derived from:
 # - https://github.com/googleapis/google-auth-library-python/blob/0afc61a3a9c3d5035c913ad4a7568e8a888e2ec9/google/auth/external_account.py#L361
 # - https://github.com/googleapis/google-auth-library-python/blob/0afc61a3a9c3d5035c913ad4a7568e8a888e2ec9/google/oauth2/sts.py#L95
+
+
+@retry(
+    retry=retry_if_exception_type(ValueError),
+    stop=stop_after_attempt(1),
+    wait=wait_fixed(3) + wait_random(0, 2),
+)
 def _create_sts_token_request(creds: Dict[str, Any]) -> Request:
     data = {
         "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",

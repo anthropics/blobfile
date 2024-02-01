@@ -735,7 +735,7 @@ class BaseStreamingWriteFile(io.BufferedIOBase):
             self._upload_chunk(chunk, finalize)
             self._offset += len(chunk)
         finally:
-            del chunk, buf  # pyright: ignore[reportUnboundVariable]
+            del chunk, buf  # pyright: ignore[reportPossiblyUnboundVariable]
         return size
 
     def close(self) -> None:
@@ -769,7 +769,7 @@ class BaseStreamingWriteFile(io.BufferedIOBase):
                     size = self._upload_buf(mv)
                     self._buf = bytearray(mv[size:])
                 finally:
-                    del mv  # pyright: ignore[reportUnboundVariable]
+                    del mv  # pyright: ignore[reportPossiblyUnboundVariable]
         assert len(self._buf) < self._chunk_size
         return len(b)
 
